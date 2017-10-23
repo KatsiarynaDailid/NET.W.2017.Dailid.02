@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace Library
     {
 
         /// <summary>
-        /// InsertNumber method will place part (from i to j, i less than j) of bits from one number to another.
+        /// InsertNumber method place part (from i to j, i less than j) of bits from one number to another.
         /// </summary>
         /// <param name="numberSource">First number</param>
         /// <param name="numberIn">Second number</param>
@@ -49,8 +50,11 @@ namespace Library
 
         }
 
+
+        #region FindNextBiggerNumber
+
         /// <summary>
-        /// FindNextBiggerNumber method will find next bigger number that will contan only digits from original number.
+        /// FindNextBiggerNumber method find next bigger number that will contan only digits from original number.
         /// </summary>
         /// <param name="number">Original number</param>
         /// <returns>Next bigger number</returns>
@@ -91,7 +95,7 @@ namespace Library
                 }
 
                 // Swap found digits
-                Swap(array, i - 1, min);
+                Swap(ref array[i - 1], ref array[min]);
 
                 //Sort the right side from first choosed digit
                 Array.Sort(array, i, array.Length - i);
@@ -103,11 +107,109 @@ namespace Library
             }
             return result;
         }
-        private static void Swap(int[] array, int i, int j)
+
+        /// <summary>
+        /// FindNextBiggerNumberOutParam method find out the time that FindNextBiggerNumber spent
+        /// </summary>
+        /// <param name="number">Original number</param>
+        /// <param name="time">Out parameter that will contain ticks count</param>
+        /// <returns>Next bigger number</returns>
+        public static int FindNextBiggerNumberOutParam(int number, out long time)
         {
-            var temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
+           
+            Stopwatch stopWatch = new Stopwatch();
+
+            stopWatch.Start();
+            int result = FindNextBiggerNumber(number);
+            stopWatch.Stop();
+
+            time = stopWatch.ElapsedTicks;
+
+            return result;
+
         }
+
+        /// <summary>
+        /// FindNextBiggerNumberTuple method find out the time that FindNextBiggerNumber spent
+        /// </summary>
+        /// <param name="number">Original number</param>
+        /// <returns>Tuple that contain next bigger number and ticks count</returns>
+        public static (int number, long time) FindNextBiggerNumberTuple(int number)
+        {
+
+            Stopwatch stopWatch = new Stopwatch();
+
+            stopWatch.Start();
+            int result = FindNextBiggerNumber(number);
+            stopWatch.Stop();
+
+            long time = stopWatch.ElapsedTicks;
+
+            return (result,time);
+
+        }
+
+        #endregion
+
+
+        /// <summary>
+        /// FilterDigit method find the numbers from the list that contain choosed digit
+        /// </summary>
+        /// <param name="list">List of numbers for verification</param>
+        /// <param name="digit">Choosed digit</param>
+        /// <returns>List of numbers that contain choosed digit</returns>
+        public static List<int> FilterDigit(List<int> list, int digit)
+        {
+            var resultList = new List<int>();
+
+            if ((digit / 10) >= 1)
+                throw new ArgumentException("Wrong format of input parameter 'digit'.");
+
+            if(list.Count == 0)
+                throw new ArgumentException("Wrong format of input parameter 'list'.");
+
+
+            foreach (int number in list)
+            {
+                if ((number / 10) >= 1)
+                {
+                    char[] digits = number.ToString().ToCharArray();
+                    
+                    foreach (char ch in digits)
+                    {
+                        
+                        if ((int)Char.GetNumericValue(ch) == digit)
+                        {
+                            resultList.Add(number);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    if(number == digit)
+                    {
+                        resultList.Add(number);
+                        continue;
+                    }
+                }
+            }
+
+            return resultList;
+        }
+
+
+
+        #region Privat
+
+        private static void Swap(ref int i,ref int j)
+        {
+            var temp = i;
+            i = j;
+            j = temp;
+        }
+
+        #endregion
+
     }
 }
